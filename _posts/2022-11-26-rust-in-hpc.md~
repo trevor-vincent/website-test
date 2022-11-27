@@ -1,0 +1,13 @@
+While Rust is a modern low-level language with a great package manager, memory safety, etc, it is important to keep in mind, that Rust is pushed heavily by the web-dev community (perhaps because of it's origins in Firefox?) which consumes the majority of the developer space. This is why you hear a lot about it. Rust however has not taken off in the HPC community.
+
+There are huge practical problems with adopting rust for HPC use cases and some of these were pointed out by Marcello, so I'd just like to reiterate what he said and maybe add some points of my own.
+
+1) There is a massive HPC ecosystem surrounding three languages: Fortran, C and C++. Of these, C++ is definitely dominating next-generation HPC frameworks (Kokkos, SYCL, HPX, Charm++, Taskflow,...) as well as the standard stuff like OpenMP, MPI, CUDA, HIP, etc. Not to mention most of the big numerical HPC libraries are written in these languages. The most important thing here is that there is not a single next-generation (e.g.  distributed asynchronous task-based) HPC library written for Rust.
+
+2) All of Rust's memory safety features go out the window when you start GPU programming. In fact all GPU code is immediately 'unsafe' in rust terms. In fact if we want to do any GPU programming at all we should definitely avoid Rust as it would handicap us severely because the support just currently isn't there [1].
+
+3) Rust has not been shown in any reproducible or objective way to be 'faster', in fact most benchmarks I've seen tend to favor C, but language speed wars are often not very objective, so the main point here is that there is no speed boost by adopting Rust over a traditional low-level language. In fact fusion-blossom (written in Rust) is supposedly slower than pymatchingv2 (backend in C++) [2]
+
+4) Rust is not much easier than C++ to develop code in. In fact, you could perhaps argue it is harder [3], but, regardless, It is low-level and therefore it is hard like most other low-level languages. The compiler errors may be nicer, but you pay for that in other ways.
+
+ I'm definitely of the opinion (although I am biased because it is the language I like to develop in) that C++ is the way to go for backend work. At Xanadu, the performance team would have a python interface providing the API and then for any work that would need to be fast, we would pybind a python function to a C++ backend which provided the HPC capabilities. This is a extremely flexible setup that  can support any hardware, be it commodity-grade or supercomputer. It is also a well-trodden path that is even used by stim, pymatching, sinter, etc.
